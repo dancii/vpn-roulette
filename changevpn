@@ -1,0 +1,23 @@
+#!/usr/bin/env tcsh
+
+service openvpn stop
+
+set q = `ls /usr/local/etc/openvpn/confs/ | wc -w`
+set r = `jot -r 1 1 $q`
+set filename = `ls /usr/local/etc/openvpn/confs/ | head -n $r | tail -1`
+
+cp /etc/rc.conf /etc/rc.conf.tmp
+rm /etc/rc.conf
+cp /etc/rc.conf.d/openvpn /etc/rc.conf.d/openvpn.tmp
+rm /etc/rc.conf.d/openvpn
+
+sed '$ d' /etc/rc.conf.tmp >> /etc/rc.conf
+sed '$ d' /etc/rc.conf.d/openvpn.tmp >> /etc/rc.conf.d/openvpn
+
+echo "openvpn_configfile=/usr/local/etc/openvpn/confs/$filename" >> /etc/rc.conf
+echo "openvpn_configfile=/usr/local/etc/openvpn/confs/$filename" >> /etc/rc.conf.d/openvpn
+
+rm /etc/rc.conf.tmp
+rm /etc/rc.conf.d/openvpn.tmp
+
+service openvpn start
